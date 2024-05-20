@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Solver</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(9, 50px);
+            grid-template-rows: repeat(9, 50px);
+            gap: 2px;
+        }
+        .container input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        .button-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div>
+    <div class="container" id="sudoku-grid">
+        <!-- Grid inputs will be dynamically created here -->
+    </div>
+    <div class="button-container">
+        <button onclick="solveSudoku()">Solve Sudoku</button>
+    </div>
+</div>
+
+<script>
+    // Initialize a 9x9 grid of input elements
+    const gridContainer = document.getElementById('sudoku-grid');
+    for (let i = 0; i < 81; i++) {
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.min = '1';
+        input.max = '9';
+        input.id = 'cell-' + i;
+        gridContainer.appendChild(input);
+    }
+
+    // Function to solve the Sudoku puzzle
+    function solveSudoku() {
+        const grid = [];
+        for (let i = 0; i < 9; i++) {
+            grid[i] = [];
+            for (let j = 0; j < 9; j++) {
+                const value = document.getElementById('cell-' + (i * 9 + j)).value;
+                grid[i][j] = value ? parseInt(value) : 0;
+            }
+        }
+        
+        if (solve(grid)) {
+            for (let i = 0; i < 9; i++) {
+                for (let j = 0; j < 9; j++) {
+                    document.getElementById('cell-' + (i * 9 + j)).value = grid[i][j];
+                }
+            }
+            alert("Sudoku solved!");
+        } else {
+            alert("No solution exists.");
+        }
+    }
+
+    // Backtracking algorithm to solve the Sudoku
+    function solve(grid) {
+        const emptyCell = findEmpty(grid);
+        if (!emptyCell) return true;
+        const [row, col] = emptyCell;
+
+        for (let num = 1; num <= 9; num++) {
+            if (isValid(grid, num, row, col)) {
+                grid[row][col] = num;
+                if (solve(grid)) return true;
+                grid[row][col] = 0;
+            }
+        }
+        return false;
+    }
+
+    function findEmpty(grid) {
+        for (let i = 0; i < 9; i++) {
+            for (let j = 0; j < 9; j++) {
+                if (grid[i][j] === 0) return [i, j];
+            }
+        }
+        return null;
+    }
+
+    function isValid(grid, num, row, col) {
+        for (let i = 0; i < 9; i++) {
+            if (grid[row][i] === num || grid[i][col] === num) return false;
+        }
+        const startRow = Math.floor(row / 3) * 3;
+        const startCol = Math.floor(col / 3) * 3;
+        for (let i = startRow; i < startRow + 3; i++) {
+            for (let j = startCol; j < startCol + 3; j++) {
+                if (grid[i][j] === num) return false;
+            }
+        }
+        return true;
+    }
+</script>
+
+</body>
+</html>
